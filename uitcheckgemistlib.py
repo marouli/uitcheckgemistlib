@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 from requests import Session
 from bs4 import BeautifulSoup as bfs
 
@@ -33,6 +35,15 @@ class Server(object):
         return response
 
     def _get_token(self, response, name):
+        """Retrieves the hidden token from the form.
+
+        Args:
+            response (requests.response): The response object having the form.
+            name (str): The name of the token to look for.
+
+        Returns:
+            token (str): The retrieved token.
+        """
         soup = bfs(response.text, 'html.parser')
         token = soup.find('input', {'name': name}).attrs.get('value')
         return token 
