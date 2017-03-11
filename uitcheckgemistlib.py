@@ -19,10 +19,23 @@ class Server(object):
         self.response = self._submit_information(response)
 
     def _get_initial_page(self):
+        """Gets initial page to retrieve session cookies.
+
+        Returns:
+            response (requests.response): The response object of the initial page.
+        """
         response = self.session.get(self.url)
         return response
 
     def _submit_card_details(self, response):
+        """Submits the card's details in the first form.
+
+        Args:
+            response (requests.response): The response object having the form.
+
+        Returns:
+            response (requests.response): The response object of the submitted form.
+        """
         token = self._get_token(response, 'tls_card_information[_token]')
         data = {'tls_card_information[_token]': token,
                 'tls_card_information[engravedId][0]': self.card_number.split('-')[0],
@@ -49,11 +62,28 @@ class Server(object):
         return token 
 
     def _submit_data(self, url, data):
+        """Helper method to post data to url.
+
+        Args:
+            url (str): The url to post to.
+            data (dict): The data to post.
+
+        Returns:
+            response (requests.response): The response of the post.
+        """
         headers = {'Content-Type': 'application/x-www-form-urlencoded'}        
         response = self.session.post(url, data=data, headers=headers)
         return response
 
     def _submit_information(self, response):
+        """Submits the birth date of the card owner.
+
+        Args:
+            response (requests.response): The response object having the form.
+
+        Returns:
+            response (requests.response): The response object of the submitted form.
+        """
         token = self._get_token(response, 'tls_person_information[_token]')
         data = {'tls_person_information[_token]': token,
                 'tls_person_information[holderBirthDate]': self.birth_date}
@@ -61,6 +91,11 @@ class Server(object):
         return response
 
     def get_missed_checks(self):
+        """Returns the html with the check-ins and check-outs.
+
+        Returns:
+            response.text (str): The html in string format.
+        """
         # When check-ins and check-outs are modeled as classes 
         # this will return a list of the appropriate objects
         # and not dump the html content as it does now.
@@ -79,6 +114,23 @@ class OvChipCard(object):
         self._validate_number(card_number)
 
     def _validate_number(self, card_number):
+        """Validates the card number. 
+
+        Validates that the card number has 16 numeric characters 
+        and that the first four are '3528'. 
+        After the validation is succeful, populates the attributes of the object 
+        with the parts of the card number.
+
+        Args:
+            card_number (str): The card number.
+
+        Raises: 
+            ValueError if the card doesn't have 16 numeric characters 
+            and the first four are not '3528'.
+
+        Returns:
+            None
+        """
         card_number = ''.join([character for character in card_number 
                                if character.isdigit()])
         if not len(card_number) == 16:
